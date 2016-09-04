@@ -2,7 +2,7 @@
 
 import scrapy
 import math
-
+from slugify import slugify
 
 class SnazzyMapsSpider(scrapy.Spider):
 	name = "Snazzy Maps"	
@@ -43,6 +43,7 @@ class SnazzyMapsSpider(scrapy.Spider):
 
 
 	def parse_item(self, response):
+		name = response.css('h1.media span.name::text').extract()[0]
 		styles = response.css('#style-json::text').extract()[0].strip().replace('\r', '').replace('\n', '')
 		styles = ' '.join(styles.split())
 
@@ -50,7 +51,8 @@ class SnazzyMapsSpider(scrapy.Spider):
 		stats = int(stats[0].css('span::text').extract()[0].split()[0])
 
 		yield { 
-			'name': response.css('h1.media span.name::text').extract()[0],
+			'slug': slugify(name),
+			'name': name,
 			'url': response.url,
 			'styles': styles,
 			'views': stats,
